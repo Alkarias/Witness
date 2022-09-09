@@ -1,5 +1,4 @@
 const init = require('./init');
+const db = require('./db');
 
-
-
-module.exports = { init };
+module.exports = { init, db };

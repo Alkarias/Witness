@@ -2,8 +2,9 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
 const sequelize = require('./config/connection');
 const { Guild, NotificationList } = require('./models');
+const { init, db } = require('./commands');
 
-let botChannel;
+// let botChannel;
 
 const client = new Client({
     intents: [
@@ -14,8 +15,6 @@ const client = new Client({
 });
 
 client.once('ready', () => {
-    const channel = '1017643713461239908';
-    botChannel = client.channels.cache.get(channel);
     const guild = client.guilds.cache.get(process.env.devGuild);
 
     let commands;
@@ -34,10 +33,24 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
-    // stop running the command if in the wrong channel
-    if (message.channel !== botChannel) return;
+    
+    // const channel = '1017643713461239908';
+    // botChannel = client.channels.cache.get(channel);
+
+    // grab all information relating to the current guild
+    const guild = await Guild.findOne({ where: { guildId: message.guild.id }});
+    const botChannel = guild.botChannel; // easy reference to the guild's bot channel
+    const prefix = guild.prefix; // easy reference to the guild prefix
+
+    // ignore the command if a bot channel exists and the command is not inside it
+    if (botChannel && message.channel !== botChannel) return;
+    // check to see if this is intended to be a command
+    if (message.content.charAt(0) !== prefix ) return;
+    // remove the prefix from the command once checked
+    message.content = message.content.slice(1);
 
     // command for the message 'ping'
+    // sanity check
     if (message.content === 'ping') {
         await message.reply('pong');
     }
@@ -52,46 +65,12 @@ client.on('messageCreate', async (message) => {
     }
 
     if (['db', 'database'].includes(message.content)) {
-        const guild = await Guild.findOne({ where: { guildId: message.guild.id }});
-        if (!guild) {
-            await message.channel.send('could not connect');
-            return;
-        }
-        const guildEmbed = new EmbedBuilder()
-            .setColor(0xFFFFFF)
-            .setTitle(guild.guildName)
-            .setDescription(guild.guildId)
-            .addFields(
-                { name: 'prefix', value: guild.prefix },
-                { name: 'Bot channel', value: guild.botChannel || 'None Selected'},
-                { name: 'Notification Channel', value: guild.notificationChannel || 'None Selected'}
-            );
-        await message.channel.send({ embeds: [guildEmbed] });
+        db(message);
     }
 
     // This needs to be put into a 'guildCreate' event listener
     if (['init'].includes(message.content)) {
-        // create the new entry in the database
-        try {
-            await Guild.create({
-                guildName: message.guild.name,
-                guildId: message.guild.id
-            });
-        } catch(err) {
-            if (err.name === 'SequelizeUniqueConstraintError') {
-                await message.channel.send('This server already has an entry!');
-                return;
-            }
-            console.error(err);
-        }
-        // fetch the new entry in the database for proof of creation
-        const entry = await Guild.findOne({ where: { guildId: message.guild.id }});
-        // create an embed for user feedback
-        const newGuildEmbed = new EmbedBuilder()
-            .setColor(0xFFFFFF)
-            .setTitle(entry.guildName)
-            .setDescription(entry.guildId);
-        await message.channel.send({ embeds: [newGuildEmbed]});
+        init(message);
     }
 });
 
