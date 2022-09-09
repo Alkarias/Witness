@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, Message } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -33,9 +33,21 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', async (message) => {
+    // stop running the command if in the wrong channel
+    if (message.channel !== botChannel) return;
+
+    // command for the message 'ping'
     if (message.content === 'ping') {
         await message.reply('pong');
-        // await botChannel.send(`${'pong'}`);
+    }
+
+    // command for the message 'notfications' which can be aliased as 'notifs'
+    if (['notifications', 'notifs'].includes(message.content)) {
+        const notifSettingsEmbed = new EmbedBuilder()
+            .setColor(0x015599)
+            .setTitle('Notifications');
+
+        await message.channel.send({ embeds: [notifSettingsEmbed]});
     }
 });
 
