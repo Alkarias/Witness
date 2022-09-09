@@ -51,7 +51,7 @@ client.on('messageCreate', async (message) => {
     const prefix = guild.prefix; // easy reference to the guild prefix
 
     // ignore the command if a bot channel exists and the command is not inside it
-    if (botChannel && message.channel !== botChannel) return;
+    if (botChannel && message.channel.id !== botChannel) return;
     // check to see if this is intended to be a command
     if (message.content.charAt(0) !== prefix ) return;
     // remove the prefix from the command once checked
@@ -86,18 +86,7 @@ client.on('messageCreate', async (message) => {
     }
 
     if (['botchannel', 'channel'].includes(command[0])) {
-        const guild = message.guild;
-        let channels = guild.channels.cache;
-        channels = channels.map(channel => {
-            if (channel.type === 0) {
-                return {
-                    id: channel.id,
-                    name: channel.name
-                }
-            };
-        });
-        console.log(channels);
-        setBotChannel(message, channels);
+        setBotChannel(message);
     }
 });
 
