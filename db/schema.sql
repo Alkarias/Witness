@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS witness_db;
+CREATE DATABASE witness_db;
