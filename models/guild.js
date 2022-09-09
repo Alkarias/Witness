@@ -24,6 +24,21 @@ Guild.init(
             type: DataTypes.STRING,
             allowNull: false,
             defaultValue: '!'
+        },
+        botChannel: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        notificationChannel: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        notifications_id: {
+            type: DataTypes.INTEGER,
+            references: {
+                model: 'notificationList',
+                key: 'id'
+            }
         }
     },
     {

@@ -1,7 +1,7 @@
-const { Client, GatewayIntentBits, EmbedBuilder, EmbedAssertions } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
 const sequelize = require('./config/connection');
-const Guild = require('./models/guild');
+const { Guild, NotificationList } = require('./models');
 
 let botChannel;
 
@@ -52,8 +52,21 @@ client.on('messageCreate', async (message) => {
     }
 
     if (['db', 'database'].includes(message.content)) {
-
-        await message.channel.send('could not connect');
+        const guild = await Guild.findOne({ where: { guildId: message.guild.id }});
+        if (!guild) {
+            await message.channel.send('could not connect');
+            return;
+        }
+        const guildEmbed = new EmbedBuilder()
+            .setColor(0xFFFFFF)
+            .setTitle(guild.guildName)
+            .setDescription(guild.guildId)
+            .addFields(
+                { name: 'prefix', value: guild.prefix },
+                { name: 'Bot channel', value: guild.botChannel || 'None Selected'},
+                { name: 'Notification Channel', value: guild.notificationChannel || 'None Selected'}
+            );
+        await message.channel.send({ embeds: [guildEmbed] });
     }
 
     // This needs to be put into a 'guildCreate' event listener
