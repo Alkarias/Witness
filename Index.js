@@ -41,9 +41,11 @@ client.on('guildDelete', guild => {
 });
 
 client.on('messageCreate', async (message) => {
-    
-    // const channel = '1017643713461239908';
-    // botChannel = client.channels.cache.get(channel);
+    // initialize the server in the database
+    if (message.content === '!init') {
+        init(message);
+        return;
+    }
 
     // grab all information relating to the current guild
     const guild = await Guild.findOne({ where: { guildId: message.guild.id }});
@@ -80,11 +82,6 @@ client.on('messageCreate', async (message) => {
     // show the database entries of the server
     if (['db', 'database'].includes(command[0])) {
         db(message);
-    }
-
-    // This needs to be put into a 'guildCreate' event listener
-    if (['init'].includes(command[0])) {
-        init(message);
     }
 
     // set the bot channel of the server

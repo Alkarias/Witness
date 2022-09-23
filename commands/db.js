@@ -12,7 +12,7 @@ async function db(message) {
         const guildEmbed = new EmbedBuilder()
             .setColor(0xFFFFFF)
             .setTitle(guild.guildName)
-            .setDescription(guild.guildId)
+            .setDescription(`config for guild ${guild.guildId}`)
             .addFields(
                 { name: 'prefix', value: guild.prefix },
                 { name: 'Bot channel', value: guild.botChannel || 'None Selected'},

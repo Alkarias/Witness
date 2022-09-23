@@ -34,6 +34,10 @@ NotificationList.init(
         eververse: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
+        },
+        seasonal: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }        
     },
     {
