@@ -2,7 +2,7 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 require('dotenv').config();
 const sequelize = require('./config/connection');
 const { Guild, NotificationList } = require('./models');
-const { init, db, setPrefix, setChannel, guildJoin, guildLeave } = require('./commands');
+const { help, init, db, setPrefix, setChannel, guildJoin, guildLeave, notifier } = require('./commands');
 
 // let botChannel;
 
@@ -85,14 +85,22 @@ client.on('messageCreate', async (message) => {
     }
 
     // set the bot channel of the server
-    if (['botchannel', 'channel'].includes(command[0])) {
+    if (['bc', 'botChannel', 'bchannel'].includes(command[0])) {
         setChannel(message, 'botChannel');
     }
 
     // set the notification channel of the server
-    if (['notifChannel', 'notif', 'notifications'].includes(command[0])) {
+    if (['nc','notifChannel', 'nchannel', 'notificationchannel'].includes(command[0])) {
         setChannel(message, 'notificationChannel');
     }
+
+    if (['daily'].includes(command[0])) {
+        notifier(message);
+    }
+    
+    if (['help'].includes(command[0])) {
+        help(message);
+    }  
 });
 
 sequelize.sync({ force: false, alter: false }).then(() => {
